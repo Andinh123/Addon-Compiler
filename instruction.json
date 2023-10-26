@@ -1,0 +1,8 @@
+[
+    ["package.json", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/package.json"],
+    ["app.js", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/app.js"],
+    ["public/default.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/default.css"],
+    ["public/index.html", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/index.html"],
+    ["public/light.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/light.css"],
+    ["public/minecraft.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/minecraft.css"]
+]
