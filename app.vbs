@@ -3,7 +3,7 @@ Set objShell = WScript.CreateObject("WScript.Shell")
 
 ' Define the Node.js script file path
 Dim scriptPath
-scriptPath = """C:\Program Files\Addon-Compiler-main\app.js"""
+scriptPath = """C:\Addon-Compiler-main\app.js"""
 
 ' Build the command to run Node.js
 Dim command
