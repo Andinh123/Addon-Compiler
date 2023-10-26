@@ -1,6 +1,6 @@
 # Addon-Compiler from BlockState.Team (Made by Blues)
 
-This simple compiler requires NodeJS to work properly!
+This simple compiler requires [NodeJS](https://nodejs.org/en) to work properly!
 For people who don't know how code works, you can download the VBS script and run it: [CLICK ME](https://blockstate.team/projects/Add-On%20Compiler%20Download.vbs)
 
 
