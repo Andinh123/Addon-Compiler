@@ -3,14 +3,36 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const archiver = require('archiver');
 const express = require('express');
+const https = require('https');
 const app = express();
-
+let keepOpenState = true;
+function updateApp() {
+    console.log("Updating app");
+    process.exit();
+};
 function addonProject(array1, array2) {
     const exclusiveTo1 = array1.filter(element => !array2.includes(element)).map(element => element + " RP");
     const commonElements = array1.filter(element => array2.includes(element)).map(element => element + " Addon");
     const exclusiveTo2 = array2.filter(element => !array1.includes(element)).map(element => element + " BP");
     return [exclusiveTo1, commonElements, exclusiveTo2];
 };
+let currentVersion = fs.readFileSync(path.join(__dirname, 'version.txt'), 'utf8');
+console.log(currentVersion);
+https.get("https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/app.vbs", (response) => {
+    let data = '';
+    response.on('data', (chunk) => {
+        data += chunk;
+    });
+    response.on('end', () => {
+        console.log(data);
+        if (data === currentVersion) {
+            console.log("Up to date");
+            keepOpenState = false;
+        }
+    });
+}).on('error', (error) => {
+    console.error(`Error fetching data: ${error.message}`);
+});
 let RPprojects = [];
 fs.readdirSync(path.join(process.env.USERPROFILE, 'AppData/Local/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang/development_resource_packs')).forEach(rpFolder => {
     RPprojects.push(rpFolder.replace(/ RP$/, ''));
@@ -47,7 +69,11 @@ app.listen('80', () => {});
         ignoreDefaultArgs: ['--enable-automation', '--enable-blink-features=IdleDetection'],
     });
     browser.on('disconnected', () => {
-        process.exit();
+        if (keepOpenState === false) {
+            process.exit();
+        } else {
+            updateApp();
+        }
     });
 })();
 
@@ -61,8 +87,8 @@ function createAddon(projectName) {
         BPpath = path.join(basePath, 'development_behavior_packs', projectName)
     };
 
-    if (fs.existsSync(path.join(basePath, 'development_resource_packs', projectName + ' BP'))) {
-        RPpath = path.join(basePath, 'development_resource_packs', projectName + ' BP')
+    if (fs.existsSync(path.join(basePath, 'development_resource_packs', projectName + ' RP'))) {
+        RPpath = path.join(basePath, 'development_resource_packs', projectName + ' RP')
     } else {
         RPpath = path.join(basePath, 'development_resource_packs', projectName)
     }
