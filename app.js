@@ -18,7 +18,7 @@ function addonProject(array1, array2) {
 };
 let currentVersion = fs.readFileSync(path.join(__dirname, 'version.txt'), 'utf8');
 console.log(currentVersion);
-https.get("https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/app.vbs", (response) => {
+https.get("https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/version.txt", (response) => {
     let data = '';
     response.on('data', (chunk) => {
         data += chunk;

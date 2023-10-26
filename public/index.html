@@ -3,57 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <title>Add-On Compiler</title>
-    <style>
-        body {
-            background-color: #242424;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-        }
-        #table {
-            margin: 20px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        th, td {
-            border: 3px solid black;
-            padding: 10px;
-        }
-        td {
-            max-width: 5vw;
-        }
-        button {
-            background-color: #666;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #393939;
-        }
-        button:active {
-            background-color: #c9c9c9;
-        }
-        h1 {
-            font-size: 3.5vw;
-            margin-top: 0;
-        }
-        h3 {
-            font-size: 2.5vw;
-        }
-        #container {
-            width: 80vw;
-        }
-    </style>
-    <link href="user.css" rel="stylesheet" type="text/css">
+    <link id="css-link" rel="stylesheet" type="text/css" href="default.css">
 </head>
 <body>
+    <div id="uiswitcher">
+        <h4>UI Switcher:</h4>
+        <select id="select">
+            <option value="default">Default</option>
+            <option value="light">Light Mode</option>
+            <option value="minecraft">Minecraft</option>
+        </select>
+    </div>
     <div id="container">
         <h1>Add-On Compiler</h1>
         <h3>Made by Blues</h3>
@@ -67,14 +27,14 @@
                 array.forEach((string, j) => {
                     tableHTML += `
                         <tr>
-                            <td>${string}</td>
-                            <td><button class="action-button">Compile</button></td>
+                            <td id="textCell">${string}</td>
+                            <td id="buttonCell"><button class="action-button">Compile</button></td>
                         </tr>`;
                 });
                 tableHTML += `</tbody></table>`;
                 return tableHTML;
             });
-            return [...tablesHTML];
+            return tablesHTML.join('');
         }
         fetch('/data')
         .then(response => {
@@ -83,6 +43,7 @@
         })
         .then(textData => {
             document.getElementById('table').innerHTML = generateHTMLTables(JSON.parse(textData));
+            console.log(JSON.parse(textData));
             const buttons = document.querySelectorAll(".action-button");
             buttons.forEach(button => {
                 button.addEventListener("click", function() {
@@ -103,6 +64,26 @@
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
         });
+        const select = document.getElementById('select');
+const cssLink = document.getElementById('css-link');
+
+select.addEventListener('change', function () {
+    const selectedValue = select.value;
+    let newCssFile;
+
+    switch (selectedValue) {
+        case 'light':
+            newCssFile = 'light.css';
+            break;
+        case 'minecraft':
+            newCssFile = 'minecraft.css';
+            break;
+        default:
+            newCssFile = 'default.css';
+    }
+
+    cssLink.href = newCssFile;
+});
     </script>
 </body>
 </html>
