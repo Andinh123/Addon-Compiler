@@ -6,13 +6,24 @@
     <link id="css-link" rel="stylesheet" type="text/css" href="default.css">
 </head>
 <body>
-    <div id="uiswitcher">
-        <h4>UI Switcher:</h4>
-        <select id="select">
-            <option value="default">Default</option>
-            <option value="light">Light Mode</option>
-            <option value="minecraft">Minecraft</option>
-        </select>
+    <div id="optionContainer">
+        <div class="optionSlot">
+            <h4>UI Switcher:</h4>
+            <select id="uiselect">
+                <option value="default">Default</option>
+                <option value="light">Light Mode</option>
+                <option value="minecraft">Minecraft</option>
+            </select>
+        </div>
+        
+        
+        <div class="optionSlot">
+            <h4>Save Mode:</h4>
+            <select id="saveMode">
+                <option value="desktop">Desktop</option>
+                <option value="choose">Let me decide</option>
+            </select>
+        </div>
     </div>
     <div id="container">
         <h1>Add-On Compiler</h1>
@@ -43,47 +54,39 @@
         })
         .then(textData => {
             document.getElementById('table').innerHTML = generateHTMLTables(JSON.parse(textData));
-            console.log(JSON.parse(textData));
-            const buttons = document.querySelectorAll(".action-button");
-            buttons.forEach(button => {
-                button.addEventListener("click", function() {
-                    const td = this.parentElement.previousElementSibling;
-                    if (td) {
-                        const text = td.textContent.trim();
-                        fetch(`/action/${text}`, {
-                        method: 'POST',
-                        })
-                        .then((response) => response.text())
-                        .then((message) => console.log(message));
-                    } else {
-                        console.log("No previous sibling <td> found.");
-                    }
-                });
-            });
+            
         })
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
         });
-        const select = document.getElementById('select');
-const cssLink = document.getElementById('css-link');
-
-select.addEventListener('change', function () {
-    const selectedValue = select.value;
-    let newCssFile;
-
-    switch (selectedValue) {
-        case 'light':
-            newCssFile = 'light.css';
-            break;
-        case 'minecraft':
-            newCssFile = 'minecraft.css';
-            break;
-        default:
-            newCssFile = 'default.css';
-    }
-
-    cssLink.href = newCssFile;
-});
+        document.addEventListener("click", function(event) {
+            if (event.target.tagName === "BUTTON") {
+                console.log(document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value);
+                fetch(`/action/${event.target.parentElement.previousElementSibling.textContent.trim()}/${document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value}`, {
+                method: 'POST',
+                })
+                .then((response) => {
+                    console.log(response);
+                })
+            }
+            
+        });
+        document.getElementById('uiselect').addEventListener('change', function () {
+            const selectedValue = uiselect.value;
+            let newCssFile;
+            switch (selectedValue) {
+                case 'light':
+                    newCssFile = 'light.css';
+                    break;
+                case 'minecraft':
+                    newCssFile = 'minecraft.css';
+                    break;
+                default:
+                    newCssFile = 'default.css';
+            }
+            document.getElementById('css-link').href = newCssFile;
+        });
+        
     </script>
 </body>
 </html>
