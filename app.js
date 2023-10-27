@@ -8,6 +8,7 @@ const https = require('https');
 const fileDialog = require("popups-file-dialog");
 const app = express();
 const net = require('net');
+const { exec } = require('child_process');
 let mainPort;
 const getPort = async () => {
     let port;
@@ -130,6 +131,23 @@ const isPortAvailable = async (port) => {
         const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         settings[name] = value;
         fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
+    });
+    app.post('/discord', (req, res) => {
+        exec(`cscript.exe ${path.join(__dirname, 'discord.vbs')}`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error: ${error}`);
+            }
+        });
+    });
+    app.post('/uninstall', (req, res) => {
+        exec(`cscript.exe ${path.join(__dirname, 'uninstall.vbs')}`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error: ${error}`);
+            } else {
+                console.log('VBScript execution completed.');
+                process.exit();
+            }
+        });
     });
     app.listen(mainPort, () => {});
 

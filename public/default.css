@@ -123,9 +123,9 @@ h4 {
 
 #optionContainer {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
-    width: 50vw;
+    width: 100vw;
     padding: 20px;
 }
 
