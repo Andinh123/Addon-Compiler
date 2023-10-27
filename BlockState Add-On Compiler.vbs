@@ -68,7 +68,7 @@ If objHTTP.Status = 200 Then
     End If
 
     ' Create a desktop shortcut
-    strShortcutPath = objShell.SpecialFolders("Desktop") & "\Add-On Compiler.lnk"
+    strShortcutPath = objShell.SpecialFolders("Desktop") & "\BlockState Add-On Compiler.lnk"
     CreateShortcut strShortcutPath, strExtractTo & "Addon-Compiler-main\app.vbs", strExtractTo & "Addon-Compiler-main\public\favicon.ico"
 
     ' Set the "Start in" directory for the shortcut
