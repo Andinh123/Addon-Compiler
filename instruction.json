@@ -5,5 +5,6 @@
     ["public/index.html", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/index.html"],
     ["public/light.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/light.css"],
     ["public/minecraft.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/minecraft.css"],
+    ["public/setting.json", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/setting.json"],
     ["version.txt", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/version.txt"]
 ]
