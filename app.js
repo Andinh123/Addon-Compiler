@@ -66,17 +66,24 @@ app.use(express.static('public'));
 app.get('/data', (req, res) => {
     res.send(addonProject(RPprojects, BPprojects));
 });
+app.get('/version', (req, res) => {
+    res.send(currentVersion);
+});
 app.post('/action/:parameter/:choice', (req, res) => {
     const parameter = req.params.parameter.replace(/ (BP|RP|Addon)$/, '');
     const choice = req.params.choice;
     console.log(`/action/${parameter}/${choice}`);
     if (choice === "choose") { 
         (async () => {
-            const result = await fileDialog.openDirectory({
-                title: "Select a directory to save the Addon",
-            })
-            console.log(result);
-            createAddon(parameter, result);
+            try {
+                const result = await fileDialog.openDirectory({
+                    title: "Select a directory to save the Addon",
+                });
+                console.log(result);
+                createAddon(parameter, result);
+            } catch (error) {
+                console.log("Directory selection cancelled by the user.");
+            }
         })();
     } else {
         createAddon(parameter, path.join(process.env.USERPROFILE, 'Desktop'));

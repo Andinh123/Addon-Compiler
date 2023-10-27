@@ -13,6 +13,7 @@
                 <option value="default">Default</option>
                 <option value="light">Light Mode</option>
                 <option value="minecraft">Minecraft</option>
+                <option value="user">Custom</option>
             </select>
         </div>
         
@@ -59,6 +60,17 @@
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
         });
+        fetch('/version')
+        .then(response => {
+            if (!response.ok) {throw new Error('Network response was not ok')}
+            return response.text();
+        })
+        .then(textData => {
+            document.getElementsByTagName('h1').item(0).innerHTML += ` ${textData}`;
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
         document.addEventListener("click", function(event) {
             if (event.target.tagName === "BUTTON") {
                 console.log(document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value);
@@ -81,6 +93,9 @@
                 case 'minecraft':
                     newCssFile = 'minecraft.css';
                     break;
+                case 'user':
+                    newCssFile = 'user.css';
+                break;
                 default:
                     newCssFile = 'default.css';
             }
