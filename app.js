@@ -33,13 +33,13 @@ const isPortAvailable = async (port) => {
             server.close();
             resolve(true);
         });
-    
         server.listen(port, '127.0.0.1');
     });
 };
   
 (async () => {
     mainPort = await getPort();
+    console.log(`Port: ${mainPort}`);
     let keepOpenState = true;
     function updateApp() {
         console.log("Updating app");
@@ -122,7 +122,15 @@ const isPortAvailable = async (port) => {
             createAddon(parameter, path.join(process.env.USERPROFILE, 'Desktop'));
         }
     });
-    
+    app.post('/setting/:name/:value', (req, res) => {
+        const name = req.params.name;
+        const value = req.params.value;
+        console.log(`/setting/${name}/${value}`);
+        const filePath = path.join(__dirname, 'public', 'setting.json');
+        const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        settings[name] = value;
+        fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
+    });
     app.listen(mainPort, () => {});
 
 

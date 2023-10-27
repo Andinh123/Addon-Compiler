@@ -32,6 +32,9 @@
         <div id="table"></div>
     </div>
     <script>
+        function updateSetting(setting, value) {
+            fetch(`/setting/${setting}/${value}`, { method: 'POST' }).catch(console.error);
+        }
         function generateHTMLTables(arrays) {
             let tableName = ["Resource Pack", "Add-On Pack", "Behavior Pack"];
             const tablesHTML = arrays.map((array, i) => {
@@ -83,9 +86,32 @@
             }
             
         });
+        fetch('./setting.json')
+        .then(response => {
+            if (!response.ok) {
+            throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(setting => {
+            console.log(setting);
+            let uiSwitcher = document.getElementById('uiselect');
+            let useMode = document.getElementById('saveMode');
+            useMode.value = setting.saveMode;
+            uiSwitcher.value = setting.ui;
+            uiSwitcher.dispatchEvent(changeEvent);
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+        const changeEvent = new Event("change", {
+            bubbles: true,
+            cancelable: true
+        });
         document.getElementById('uiselect').addEventListener('change', function () {
             const selectedValue = uiselect.value;
             let newCssFile;
+            updateSetting('ui', selectedValue);
             switch (selectedValue) {
                 case 'light':
                     newCssFile = 'light.css';
@@ -101,7 +127,11 @@
             }
             document.getElementById('css-link').href = newCssFile;
         });
-        
+        document.getElementById('saveMode').addEventListener('change', function () {
+            const selectedValue = saveMode.value;
+            console.log(selectedValue);
+            updateSetting('saveMode', selectedValue);
+        });
     </script>
 </body>
 </html>
