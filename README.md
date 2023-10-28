@@ -9,7 +9,7 @@ If you want to add your own UI (through CSS), go to "C:\Addon-Compiler-main\publ
 
 # Changelog
 ### v1.0.0
-Add compiling feature using CLI
+- Add compiling feature using CLI
 
 ### v1.1.0 [CURRENT]
 Add an UI for the program
