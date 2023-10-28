@@ -12,17 +12,17 @@ If you want to add your own UI (through CSS), go to "C:\Addon-Compiler-main\publ
 - Add compiling feature using CLI
 
 ### v1.1.0 [CURRENT]
-Add an UI for the program
-Auto-scan and seperate projects into RP, BP and Add-On
-Add auto-update system to handle update from Github
-Add an UI switcher system
-Add "Let me decide" option as an export location when compiling Add-On
-Fix several bugs related to the UI
-Fix a bug that could happen when user cancel the Directory Promt when they're exporting Add-On
-Fix several bugs related to how NodeJS BE handle file scanning
-Add a new user.css for further customization
-Revamp UI for more animations
-Fix an important bugs that cause the program to crash if the user changes the UI rapidly
-Add "Setting" with Help section (Discord) and an Uninstall feature
-Add a new system to let user select their own Directory as a default path
-Add an Alert system and manual update mode
+- Add an UI for the program
+- Auto-scan and seperate projects into RP, BP and Add-On
+- Add auto-update system to handle update from Github
+- Add an UI switcher system
+- Add "Let me decide" option as an export location when compiling Add-On
+- Fix several bugs related to the UI
+- Fix a bug that could happen when user cancel the Directory Promt when they're exporting Add-On
+- Fix several bugs related to how NodeJS BE handle file scanning
+- Add a new user.css for further customization
+- Revamp UI for more animations
+- Fix an important bugs that cause the program to crash if the user changes the UI rapidly
+- Add "Setting" with Help section (Discord) and an Uninstall feature
+- Add a new system to let user select their own Directory as a default path
+- Add an Alert system and manual update mode
