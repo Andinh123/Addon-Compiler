@@ -121,7 +121,7 @@ const isPortAvailable = async (port) => {
             })();
         } else {
             createAddon(parameter, path.join(process.env.USERPROFILE, 'Desktop'));
-        }
+        };
     });
     app.post('/setting/:name/:value', (req, res) => {
         const name = req.params.name;
@@ -131,6 +131,7 @@ const isPortAvailable = async (port) => {
         const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         settings[name] = value;
         fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
+        res.status(200).json({ message: 'ok' });
     });
     app.post('/discord', (req, res) => {
         exec(`cscript.exe ${path.join(__dirname, 'discord.vbs')}`, (error, stdout, stderr) => {
@@ -138,6 +139,7 @@ const isPortAvailable = async (port) => {
                 console.error(`Error: ${error}`);
             }
         });
+        res.status(200).json({ message: 'ok' });
     });
     app.post('/uninstall', (req, res) => {
         exec(`cscript.exe ${path.join(__dirname, 'uninstall.vbs')}`, (error, stdout, stderr) => {

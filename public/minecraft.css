@@ -140,6 +140,7 @@ h4 {
 }
 
 select {
+    z-index: 97;
     font-family: 'Minecraft';
     width: 10vw;
     height: 5vh;

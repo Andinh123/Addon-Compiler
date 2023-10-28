@@ -17,7 +17,7 @@
             width: 100vw;
             height: 100vh;
             background-color: rgba(0, 0, 0, 0.85);
-            color: black;
+            color: #000;
             z-index: 99;
         }
         #uninstallpromt {
@@ -34,12 +34,12 @@
         }
         .clickable {
             text-decoration: underline; 
-            color: rgb(61, 80, 255); 
+            color: rgb(59, 92, 255); 
             cursor: pointer;
         }
         .clickable:hover {
-            color: rgb(55, 38, 140);
-            text-shadow: 1.25px 0 0 rgb(55, 38, 140);
+            color: rgb(107, 20, 189);
+            text-shadow: 1.25px 0 0 rgb(107, 20, 189);
         }
     </style>
     <div class="overlay">
@@ -89,7 +89,7 @@
             document.querySelectorAll(".overlay").forEach(overlay => overlay.style.display = overlay.style.display === "none" || overlay.style.display === "" ? "flex" : "none");
         }
         function updateSetting(setting, value) {
-            fetch(`/setting/${setting}/${value}`, { method: 'POST' }).catch(console.error);
+            fetch(`/setting/${setting}/${value}`, { method: 'POST' }).catch(console.error).then(response => {console.log(response)});
         }
         function generateHTMLTables(arrays) {
             let tableName = ["Resource Pack", "Add-On Pack", "Behavior Pack"];
