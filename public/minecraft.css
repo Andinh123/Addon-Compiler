@@ -19,7 +19,9 @@
     --select-background: #393939;
     --select-text-color: #fff;
 }
-
+::-webkit-scrollbar {
+    display: none;
+}
 body {
     overflow-x: hidden;
     background-color: var(--background-color);

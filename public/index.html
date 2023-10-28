@@ -41,9 +41,48 @@
             color: rgb(107, 20, 189);
             text-shadow: 1.25px 0 0 rgb(107, 20, 189);
         }
+        #notification {
+            pointer-events: none;
+            position: fixed;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            flex-direction: column;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            color: black;
+            z-index: 90;
+            transition: height 0.3s ease-in-out;
+        }
+        .notificationBox {
+            pointer-events: auto;
+            cursor: pointer;
+            right: 0;
+            bottom: 0;
+            padding: 1vw;
+            height: 10vh;
+            width: 22vw;
+            background-color: #7c7c7c;
+            opacity: 0;
+            transform: translateX(100vw);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, padding 0.25s;
+            border: 0.5vw transparent;
+        }
+        .notificationBox:hover {
+            padding: 1.5vw;
+            background-color: #a1a1a1;
+        }
+        .notificationBox:active {
+            padding: 0;
+            background-color: #474747;
+        }
     </style>
+    <div id="notification">
+    </div>
     <div class="overlay">
-        <div style="background-color: rgb(216, 222, 232); width: 40vw; height: 35vh; padding: 30px;">
+        <div style="background-color: #a1a1a1; width: 40vw; height: 35vh; padding: 30px; font-weight: bolder;">
             <div style="width: 100%; display: flex; justify-content: right;"><span class="clickable" onclick="trigger()">[X]</span></div>
             <p>For help, please join our Discord</p>
             <button id="discord">Discord</button>
@@ -86,21 +125,40 @@
         <div id="table"></div>
     </div>
     <script>
+        function newAlert(title, detail, time, id, clickHandlerFunction) {
+            const container = document.getElementById("notification");
+            const alert = document.createElement("div");
+            alert.className = "notificationBox";
+            alert.innerHTML = `<strong>${title}</strong><br>${detail}`;
+            if (id && clickHandlerFunction) {
+                alert.id = id;
+                alert.onclick = clickHandlerFunction;
+            }
+            container.insertBefore(alert, container.firstChild);
+            container.style.height = container.offsetHeight + "px";
+            setTimeout(() => {
+                alert.style = "opacity:1;transform:translateX(0);margin:1.5vw 1.5vw 0 0;border:2.5vw transparent";
+            }, 10);
+            setTimeout(() => {
+                alert.style = "opacity:0;transform:translateX(100vw);margin:0;border:0";
+                setTimeout(() => {
+                    container.removeChild(alert);
+                    container.style.height = container.offsetHeight + "px";
+                }, 300);
+            }, time);
+        }
+        function manualUpdate() {
+            fetch(`/manualUpdate`, { method: 'POST' }).catch(console.error);
+        }
         function trigger() {
             document.querySelectorAll(".overlay").forEach(overlay => overlay.style.display = overlay.style.display === "none" || overlay.style.display === "" ? "flex" : "none");
         }
         function updateSetting(setting, value) {
             fetch(`/setting/${setting}/${value}`, { method: 'POST' }).catch(console.error)
             .then(response => {
-                if (response.ok) {
-                return response.text();
-                } else {
-                throw new Error('Network response was not ok');
-                }
+                if (response.ok) {return response.text()} else {throw new Error('Network response was not ok')}
             })
             .then(data => {
-                console.log("Here is the data:");
-                console.log(data);
                 if (setting === "saveMode" && value === "addnew") {
                     if (data === "cancel") {
                         document.getElementById('saveMode').value = "desktop";
@@ -143,17 +201,22 @@
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
         });
+        let currentVersion;
         fetch('/version')
-        .then(response => {
-            if (!response.ok) {throw new Error('Network response was not ok')}
-            return response.text();
-        })
-        .then(textData => {
+        .then(response => { if (!response.ok) {throw new Error('Network response was not ok')} return response.text()})
+        .then(textData => { 
             document.getElementsByTagName('h1').item(0).innerHTML += ` v${textData}`;
+            currentVersion = textData;
         })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-        });
+        .catch(error => { console.error('There was a problem with the fetch operation:', error)});
+        fetch('https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/version.txt')
+        .then(response => { if (!response.ok) {throw new Error('Network response was not ok')} return response.text()})
+        .then(textData => {
+            console.log(textData);
+            if (textData !== currentVersion) {
+                newAlert("Update Available", `New version: ${textData}<br> Click me to update!`, 700000, "update", manualUpdate);
+        }})
+        .catch(error => { console.error('There was a problem with the fetch operation:', error)});
         document.addEventListener("click", function(event) {
             if (event.target.tagName === "BUTTON" && event.target.className === "action-button") {
                 console.log(document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value);
@@ -161,7 +224,10 @@
                 method: 'POST',
                 })
                 .then((response) => {
-                    console.log(response);
+                    if (response.ok) {return response.text()} else {throw new Error('Network response was not ok')}
+                })
+                .then(data => {
+                    newAlert("Success", data, 2000);
                 })
             } else if (event.target.tagName === "BUTTON" && event.target.id === "discord") {
                 fetch(`/discord`, { method: 'POST' }).catch(console.error);

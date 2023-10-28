@@ -10,6 +10,7 @@ const app = express();
 const net = require('net');
 const { exec } = require('child_process');
 let mainPort;
+let reOpenAfterUpdate = false;
 const getPort = async () => {
     let port;
     do {
@@ -43,26 +44,28 @@ const isPortAvailable = async (port) => {
     console.log(`Port: ${mainPort}`);
     let keepOpenState = true;
     function updateApp() {
-        console.log("Updating app");
-        https.get("https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/instruction.json", (response) => {
-            let data = '';
-            response.on('data', (chunk) => {
-                data += chunk;
+        if (process.cwd() === "C:\\Addon-Compiler-main") {
+            console.log('Not in DEV mode. Updating.')
+            https.get("https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/instruction.json", (response) => {
+                let data = '';
+                response.on('data', (chunk) => {
+                    data += chunk;
+                });
+                response.on('end', () => {
+                    try {
+                        const updateData = JSON.parse(data);
+                        console.log(updateData);
+                        updateFiles(updateData);
+                    } catch (error) {
+                        console.error(`Error parsing JSON: ${error.message}`);
+                        process.exit();
+                    }
+                });
+            }).on('error', (error) => {
+                console.error(`Error fetching data: ${error.message}`);
+                process.exit();
             });
-            response.on('end', () => {
-                try {
-                    const updateData = JSON.parse(data);
-                    console.log(updateData);
-                    updateFiles(updateData);
-                } catch (error) {
-                    console.error(`Error parsing JSON: ${error.message}`);
-                    process.exit();
-                }
-            });
-        }).on('error', (error) => {
-            console.error(`Error fetching data: ${error.message}`);
-            process.exit();
-        });
+        } else {console.log('DEV mode detected. Cancelling update.')};
     };
     function addonProject(array1, array2) {
         const exclusiveTo1 = array1.filter(element => !array2.includes(element)).map(element => element + " RP");
@@ -73,17 +76,21 @@ const isPortAvailable = async (port) => {
     let currentVersion = fs.readFileSync(path.join(__dirname, 'version.txt'), 'utf8');
     console.log(currentVersion);
     https.get("https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/version.txt", (response) => {
-        let data = '';
-        response.on('data', (chunk) => {
-            data += chunk;
-        });
-        response.on('end', () => {
-            console.log(data);
-            if (data === currentVersion) {
-                console.log("Up to date");
-                keepOpenState = false;
-            }
-        });
+        if (process.cwd() === "C:\\Addon-Compiler-main") {
+            console.log('Not in DEV mode. Checking for updates.')
+            let data = '';
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            response.on('end', () => {
+                console.log(data);
+                if (data === currentVersion) {
+                    console.log("Up to date");
+                    keepOpenState = false;
+                }
+            });
+        } else {console.log('No update check in! DEV mode detected.')};
+        
     }).on('error', (error) => {
         console.error(`Error fetching data: ${error.message}`);
     });
@@ -97,6 +104,7 @@ const isPortAvailable = async (port) => {
     });
     app.use(express.json());
     app.use(express.static('public'));
+
     app.get('/data', (req, res) => {
         res.send(addonProject(RPprojects, BPprojects));
     });
@@ -114,6 +122,8 @@ const isPortAvailable = async (port) => {
                         title: "Select a directory to save the Addon",
                     });
                     console.log(result);
+                    res.set("Content-Type", "text/plain");
+                    res.status(200).send(`${parameter} is compiled to ${result}`);
                     createAddon(parameter, result);
                 } catch (error) {
                     console.log("Directory selection cancelled by the user.");
@@ -121,6 +131,9 @@ const isPortAvailable = async (port) => {
             })();
         } else if (choice === "desktop") {
             createAddon(parameter, path.join(process.env.USERPROFILE, 'Desktop'));
+            res.set("Content-Type", "text/plain");
+            res.status(200).send(`${parameter} is compiled to Desktop`);
+            console.log(`${parameter} is compiled to Desktop`)
         };
     });
     app.post('/setting/:name/:value', (req, res) => {
@@ -189,6 +202,11 @@ const isPortAvailable = async (port) => {
                 ],
             ignoreDefaultArgs: ['--enable-automation', '--enable-blink-features=IdleDetection'],
         });
+        app.post('/manualUpdate', (req, res) => {
+            console.log('Manual update');
+            reOpenAfterUpdate = true;
+            browser.close();
+        });
         browser.on('disconnected', () => {
             if (keepOpenState === false) {
                 process.exit();
@@ -246,8 +264,8 @@ const isPortAvailable = async (port) => {
                 reject(`Failed to download: ${filename}`);
             }
             }).on('error', (err) => {
-            console.error(`Error downloading ${filename}: ${err.message}`);
-            reject(`Error downloading ${filename}`);
+                console.error(`Error downloading ${filename}: ${err.message}`);
+                reject(`Error downloading ${filename}`);
             });
         });
         downloadPromises.push(promise);
@@ -255,7 +273,14 @@ const isPortAvailable = async (port) => {
         Promise.all(downloadPromises)
         .then(() => {
             console.log('Update done');
-            process.exit();
+            if (reOpenAfterUpdate) {
+                exec(`start ${path.join(__dirname, 'app.vbs')}`, (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`Error: ${error}`);
+                    }
+                    process.exit()
+                });
+            } else{process.exit()};
         })
         .catch((error) => {
             console.error('Update failed:', error);
