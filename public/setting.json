@@ -1,4 +1,6 @@
 {
   "ui": "default",
-  "saveMode": "desktop"
+  "saveMode": "choose",
+  "additionPath": [
+  ]
 }

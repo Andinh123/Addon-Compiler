@@ -71,8 +71,9 @@
         <div class="optionSlot">
             <h4>Save Mode:</h4>
             <select id="saveMode">
+                <option value="addnew">>> Add a custom Directory</option>
+                <option value="choose">>> Let me decide</option>
                 <option value="desktop">Desktop</option>
-                <option value="choose">Let me decide</option>
             </select>
         </div>
         <div class="optionSlot" style="width: 50%; justify-content: flex-end; margin-left: -5vw;">
@@ -89,7 +90,30 @@
             document.querySelectorAll(".overlay").forEach(overlay => overlay.style.display = overlay.style.display === "none" || overlay.style.display === "" ? "flex" : "none");
         }
         function updateSetting(setting, value) {
-            fetch(`/setting/${setting}/${value}`, { method: 'POST' }).catch(console.error).then(response => {console.log(response)});
+            fetch(`/setting/${setting}/${value}`, { method: 'POST' }).catch(console.error)
+            .then(response => {
+                if (response.ok) {
+                return response.text();
+                } else {
+                throw new Error('Network response was not ok');
+                }
+            })
+            .then(data => {
+                console.log("Here is the data:");
+                console.log(data);
+                if (setting === "saveMode" && value === "addnew") {
+                    if (data === "cancel") {
+                        document.getElementById('saveMode').value = "desktop";
+                        return;
+                    }
+                    let newSelectPath = document.getElementById('saveMode');
+                    newSelectPath.appendChild(new Option(data, data));
+                    newSelectPath.value = data;
+                }
+            })
+            .catch(error => {
+                console.error("An error occurred:", error);
+            });
         }
         function generateHTMLTables(arrays) {
             let tableName = ["Resource Pack", "Add-On Pack", "Behavior Pack"];
@@ -158,9 +182,19 @@
         })
         .then(setting => {
             console.log(setting);
+            console.log(setting.additionPath)
             let uiSwitcher = document.getElementById('uiselect');
             let useMode = document.getElementById('saveMode');
+            let additionPath = setting.additionPath;
+            for (let i = additionPath.length - 1; i >= 0; i--) {
+                let option = document.createElement("option");
+                option.text = additionPath[i];
+                option.value = additionPath[i];
+                useMode.add(option);
+            }
             useMode.value = setting.saveMode;
+            console.log("IMPORTANT:");
+            console.log(setting.saveMode);
             uiSwitcher.value = setting.ui;
             uiSwitcher.dispatchEvent(changeEvent);
         })

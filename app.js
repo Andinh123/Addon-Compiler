@@ -119,7 +119,7 @@ const isPortAvailable = async (port) => {
                     console.log("Directory selection cancelled by the user.");
                 }
             })();
-        } else {
+        } else if (choice === "desktop") {
             createAddon(parameter, path.join(process.env.USERPROFILE, 'Desktop'));
         };
     });
@@ -127,11 +127,34 @@ const isPortAvailable = async (port) => {
         const name = req.params.name;
         const value = req.params.value;
         console.log(`/setting/${name}/${value}`);
-        const filePath = path.join(__dirname, 'public', 'setting.json');
-        const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        settings[name] = value;
-        fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
-        res.status(200).json({ message: 'ok' });
+        
+        if (value === "addnew") {
+            (async () => {
+                try {
+                    const result = await fileDialog.openDirectory({
+                        title: "Select a directory for custom Directory",
+                    });
+                    console.log(result);
+                    const filePath = path.join(__dirname, 'public', 'setting.json');
+                    const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                    settings[name] = result;
+                    settings.additionPath.push(result);
+                    fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
+                    res.set("Content-Type", "text/plain");
+                    res.status(200).send(result);
+                } catch (error) {
+                    res.set("Content-Type", "text/plain");
+                    res.status(200).send("cancel");
+                    console.log("Directory selection cancelled by the user.");
+                }
+            })();
+        } else {
+            res.status(200).json({ message: 'ok' });
+            const filePath = path.join(__dirname, 'public', 'setting.json');
+            const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            settings[name] = value;
+            fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
+        }
     });
     app.post('/discord', (req, res) => {
         exec(`cscript.exe ${path.join(__dirname, 'discord.vbs')}`, (error, stdout, stderr) => {
