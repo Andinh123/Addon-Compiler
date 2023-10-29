@@ -1,7 +1,7 @@
 Option Explicit
 
 Dim objShell, objFSO, objHTTP, objZip, objStream
-Dim strURL, strZipFile, strExtractTo, strShortcutPath, strInstallBatPath
+Dim strURL, strZipFile, strExtractTo, strShortcutPath, strNodeScriptPath
 
 ' URL of the zip file
 strURL = "https://github.com/Andinh123/Addon-Compiler/archive/refs/heads/main.zip"
@@ -12,8 +12,8 @@ strZipFile = "C:\Temp\main.zip"
 ' Location to extract the contents
 strExtractTo = "C:\"
 
-' Path to the "install.bat" file
-strInstallBatPath = strExtractTo & "Addon-Compiler-main\install.bat"
+' Path to the "install.js" file
+strNodeScriptPath = strExtractTo & "Addon-Compiler-main\install.js"
 
 ' Create objects
 Set objShell = CreateObject("WScript.Shell")
@@ -60,11 +60,11 @@ If objHTTP.Status = 200 Then
     WScript.Sleep 5000 ' Wait for extraction to finish (adjust this value as needed)
 
     ' Run the "install.bat" file
-    If objFSO.FileExists(strInstallBatPath) Then
-        objShell.Run Chr(34) & strInstallBatPath & Chr(34), 0, True
-        MsgBox "Installation complete.", vbInformation, "Script Progress"
+    If objFSO.FileExists(strNodeScriptPath) Then
+        objShell.Run "node " & Chr(34) & strNodeScriptPath & Chr(34), 0, True
+        MsgBox "Script execution complete.", vbInformation, "Script Progress"
     Else
-        MsgBox "The install.bat file does not exist in the specified location.", vbExclamation, "Script Progress"
+        MsgBox "Node.js script not found.", vbExclamation, "Script Progress"
     End If
 
     ' Create a desktop shortcut

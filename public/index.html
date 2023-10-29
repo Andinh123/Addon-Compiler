@@ -78,7 +78,46 @@
             padding: 0;
             background-color: #474747;
         }
+        #pathremover {
+            display: none;
+            color: black;
+            padding: 2vw;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            background-color: whitesmoke;
+            border: 5px solid black;
+            position: fixed;
+            z-index: 80;
+            top: 20vh;
+            left: 27vw;
+            width: 45vw; height: auto;
+        }
+        .pathTable {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+        }
+        .pathRow {
+            margin: 0.5vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 95%;
+            height: auto;
+        }
+        strong {
+            font-size: 1.75vw;
+        }
     </style>
+    <div id="pathremover">
+        <span class="clickable" style="position: relative; top:-2.5vh; right:-22.5vw" onClick="triggerRemovePanel()">[X]</span>
+        <strong>Path removal panel</strong>
+    </div>
     <div id="notification">
     </div>
     <div class="overlay">
@@ -111,6 +150,7 @@
             <h4>Save Mode:</h4>
             <select id="saveMode">
                 <option value="addnew">>> Add a custom Directory</option>
+                <option value="removeOld">>> Remove a custom Directory</option>
                 <option value="choose">>> Let me decide</option>
                 <option value="desktop">Desktop</option>
             </select>
@@ -125,6 +165,11 @@
         <div id="table"></div>
     </div>
     <script>
+        let previousSettingValue;
+        function triggerRemovePanel() {
+            document.getElementById('pathremover').style.display = 'none';
+            document.getElementById('saveMode').value = previousSettingValue;
+        }
         function newAlert(title, detail, time, id, clickHandlerFunction) {
             const container = document.getElementById("notification");
             const alert = document.createElement("div");
@@ -163,11 +208,23 @@
                     if (data === "cancel") {
                         document.getElementById('saveMode').value = "desktop";
                         return;
+                    } else {
+                        newAlert("New directory added", data, 2000);
+                        const newRow = document.createElement('div');
+                        newRow.className = 'pathRow';
+                        newRow.innerHTML = `
+                            <div class="pathCell">${data}</div>
+                            <div class="pathCell">
+                                <span class="clickable" onclick="removePath('${data.replace(/\\/g, '\\\\')}')">[x]</span>
+                            </div>
+                        `;
+
+                        document.querySelector('.pathTable').appendChild(newRow);
                     }
                     let newSelectPath = document.getElementById('saveMode');
                     newSelectPath.appendChild(new Option(data, data));
                     newSelectPath.value = data;
-                }
+                };
             })
             .catch(error => {
                 console.error("An error occurred:", error);
@@ -219,7 +276,6 @@
         .catch(error => { console.error('There was a problem with the fetch operation:', error)});
         document.addEventListener("click", function(event) {
             if (event.target.tagName === "BUTTON" && event.target.className === "action-button") {
-                console.log(document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value);
                 fetch(`/action/${event.target.parentElement.previousElementSibling.textContent.trim()}/${document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value}`, {
                 method: 'POST',
                 })
@@ -230,47 +286,91 @@
                     newAlert("Success", data, 2000);
                 })
             } else if (event.target.tagName === "BUTTON" && event.target.id === "discord") {
+                document.getElementsByClassName("overlay").item(0).style.display = "none";
                 fetch(`/discord`, { method: 'POST' }).catch(console.error);
             } else if (event.target.tagName === "BUTTON" && event.target.id === "uninstall") {
                 document.getElementById("uninstallpromt").style.display = "flex";
             } else if (event.target.tagName === "BUTTON" && event.target.id === "uninstallconfirm") {
-                fetch(`/uninstall`, { method: 'POST' }).catch(console.error);
+                document.getElementById("uninstallpromt").style.display = "none";
+                document.getElementsByClassName("overlay").item(0).style.display = "none";
+                fetch(`/uninstall`, { method: 'POST' })
+                .then((response) => {
+                    if (response.ok) {return response.text()} else {throw new Error('Network response was not ok')}
+                })
+                .then(data => {
+                    newAlert("Uninstall process alert!", data, 5000);
+                    if (data === "Deleted process completed. Shutting down in 10 seconds.") {
+                        setTimeout(() => {
+                            newAlert("THANK YOU", "For using BlockState Add-On Compiler", 5000);
+                        }, 2000);
+                        setTimeout(() => {
+                            newAlert("FEEDBACK", "Please leave your feedback in our Discord", 5000);
+                        }, 4000);
+                    } else {
+                        setTimeout(() => {
+                            newAlert("ERROR CODE 025", "Please contact us in our Discord", 10000);
+                        }, 2000);
+                    }
+                    
+                })
+                .catch(console.error);
             } else if (event.target.tagName === "BUTTON" && event.target.id === "uninstalldecline") {
                 document.getElementById("uninstallpromt").style.display = "none";
             }
         });
-        fetch('./setting.json')
-        .then(response => {
-            if (!response.ok) {
-            throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(setting => {
-            console.log(setting);
-            console.log(setting.additionPath)
-            let uiSwitcher = document.getElementById('uiselect');
-            let useMode = document.getElementById('saveMode');
-            let additionPath = setting.additionPath;
-            for (let i = additionPath.length - 1; i >= 0; i--) {
-                let option = document.createElement("option");
-                option.text = additionPath[i];
-                option.value = additionPath[i];
-                useMode.add(option);
-            }
-            useMode.value = setting.saveMode;
-            console.log("IMPORTANT:");
-            console.log(setting.saveMode);
-            uiSwitcher.value = setting.ui;
-            uiSwitcher.dispatchEvent(changeEvent);
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-        });
-        const changeEvent = new Event("change", {
-            bubbles: true,
-            cancelable: true
-        });
+        function fetchSetting() {
+            fetch('./setting.json')
+            .then(response => {
+                if (!response.ok) {
+                throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(setting => {
+                console.log(setting);
+                console.log(setting.additionPath)
+                let uiSwitcher = document.getElementById('uiselect');
+                let useMode = document.getElementById('saveMode');
+                let additionPath = setting.additionPath;
+                if (additionPath.length > 0) {
+                    document.getElementById("pathremover")?.querySelector(".pathTable")?.remove();
+                    const table = document.createElement("div");
+                    table.className = "pathTable";
+                    for (let i = additionPath.length - 1; i >= 0; i--) {
+                        let option = document.createElement("option");
+                        option.text = additionPath[i];
+                        option.value = additionPath[i];
+                        useMode.add(option);
+                        const path = additionPath[i];
+                        const row = document.createElement("div");
+                        row.className = "pathRow";
+                        row.innerHTML = `
+                            <div class="pathCell">${path}</div>
+                            <div class="pathCell">
+                                <span class="clickable" onclick="removePath('${path.replace(/\\/g, '\\\\')}')">[x]</span>
+                            </div>
+                        `;
+                        table.appendChild(row);
+                    }
+                    document.getElementById("pathremover").appendChild(table);
+                } else {
+                    console.log("Nothing to show here!");
+                    document.getElementById("pathremover").appendChild(document.createElement("div")).innerHTML = "<br><br> Nothing to show here! Add some custom directory first!";
+                }
+                useMode.value = setting.saveMode;
+                previousSettingValue = setting.saveMode;
+                uiSwitcher.value = setting.ui;
+                uiSwitcher.dispatchEvent(changeEvent);
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+            const changeEvent = new Event("change", {
+                bubbles: true,
+                cancelable: true
+            });
+        }
+        fetchSetting()
         document.getElementById('uiselect').addEventListener('change', function () {
             const selectedValue = uiselect.value;
             let newCssFile;
@@ -293,8 +393,29 @@
         document.getElementById('saveMode').addEventListener('change', function () {
             const selectedValue = saveMode.value;
             console.log(selectedValue);
-            updateSetting('saveMode', selectedValue);
+            if (selectedValue === 'removeOld') {
+                console.log("removeOld");
+                document.getElementById('pathremover').style.display = 'flex';
+            } else {
+                previousSettingValue = selectedValue;
+                updateSetting('saveMode', selectedValue);
+            }
         });
+        function removePath(paremeter) {
+            console.log(paremeter);
+            fetch(`/removePath?path=${paremeter}`, { method: 'POST' })
+            .then(response => {
+                if (response.ok) {return response.text()} else {throw new Error('Network response was not ok')}
+            })
+            .then(data => {
+                console.log(data);
+                newAlert("Remove custom directory", data, 2000);
+                fetchSetting()
+            })
+            .catch(error => {
+                console.error("An error occurred:", error);
+            });
+        }
     </script>
 </body>
 </html>

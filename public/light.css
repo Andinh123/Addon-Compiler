@@ -20,6 +20,7 @@
     display: none;
 }
 body {
+    user-select: none;
     overflow-x: hidden;
     background-color: var(--background-color);
     color: var(--text-color);
@@ -57,6 +58,7 @@ tr:hover {
     text-shadow: 1px 0 0 black;
 }
 button {
+    height: 6.5vh;
     font-family: Arial, sans-serif;
     font-size: 1.2vw;
     background-color: var(--button-background);
@@ -76,7 +78,7 @@ button:hover {
 }
 
 button:active {
-    transform: translateY(15px) scale(0.9);
+    transform: translateY(5px) scale(0.95);
     background-color: var(--button-active-background);
 }
 

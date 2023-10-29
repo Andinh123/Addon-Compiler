@@ -136,6 +136,19 @@ const isPortAvailable = async (port) => {
             console.log(`${parameter} is compiled to Desktop`)
         };
     });
+    app.post('/removePath', (req, res) => {
+        const removePath = req.query.path;
+        console.log(removePath);
+        const filePath = path.join(__dirname, 'public', 'setting.json');
+        const settings = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        if (settings.saveMode === removePath) {
+            settings.saveMode = "choose";
+        }
+        settings.additionPath = settings.additionPath.filter(path => path !== removePath);
+        fs.writeFileSync(filePath, JSON.stringify(settings, null, 2));
+        res.set("Content-Type", "text/plain");
+        res.status(200).send(`${removePath} is removed`);
+    });
     app.post('/setting/:name/:value', (req, res) => {
         const name = req.params.name;
         const value = req.params.value;
@@ -170,20 +183,27 @@ const isPortAvailable = async (port) => {
         }
     });
     app.post('/discord', (req, res) => {
-        exec(`cscript.exe ${path.join(__dirname, 'discord.vbs')}`, (error, stdout, stderr) => {
+        exec(`start https://discord.blockstate.team`, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error: ${error}`);
+            } else {
+                console.log('Successfully opened the URL.');
             }
         });
         res.status(200).json({ message: 'ok' });
     });
     app.post('/uninstall', (req, res) => {
+        res.set("Content-Type", "text/plain");
         exec(`cscript.exe ${path.join(__dirname, 'uninstall.vbs')}`, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error: ${error}`);
+                res.status(200).send("Something went wrong! Please try again.");
             } else {
                 console.log('VBScript execution completed.');
-                process.exit();
+                res.status(200).send("Deleted process completed. Shutting down in 10 seconds.");
+                setTimeout(() => {
+                    process.exit();
+                }, 13000);
             }
         });
     });
@@ -288,7 +308,7 @@ const isPortAvailable = async (port) => {
         });
     }
     const dirPath = 'C:\\Addon-Compiler-main';
-    const files = ['install.bat', 'Add-On Compiler Download.vbs', 'README.md', '.gitignore', 'instruction.json'];
+    const files = ['install.bat', 'Add-On Compiler Download.vbs', 'README.md', '.gitignore', 'instruction.json', 'discord.vbs', 'BlockState-Add-On-Compiler.vbs'];
 
     if (process.cwd() === dirPath) {files.forEach(file => fs.existsSync(file) && (console.log(`${file} deleted.`), fs.unlinkSync(file)))} else {console.log('DEV mode detected.')};
 
