@@ -29,7 +29,7 @@ If you want to add your own UI (through CSS), go to "C:\Addon-Compiler-main\publ
 - Add an Alert system and manual update mode
 
 ### v1.1.1 [CURRENT]
-- Fix bugs that cause the program to freeze when rapid compiling request
+- Fix bugs that cause the program to freeze when rapid compiling requests are made
 - The alert system is now triggered for more events (add/remove directory, compiling request, uninstall alert, etc)
 - Fix a bug that prevent user from removing custom directory
 - Revamp the compiling process! Now it should run faster
