@@ -1,7 +1,7 @@
 # Addon-Compiler from BlockState.Team (Made by Blues)
 
 This simple compiler requires both [NodeJS](https://nodejs.org/en) and [Chrome](https://www.google.com/chrome/) to work properly!
-[CLICK ME FOR DOWNLOAD](https://blockstate.team/projects/BlockState-Add-On-Compiler.vbs)
+[CLICK ME FOR DOWNLOAD](https://www.blockstate.team/BlockState-Add-On-Compiler.vbs)
 
 
 For dev, download this repo, and run "npm i" then "node app" to launch the compiler UI
