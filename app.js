@@ -286,29 +286,31 @@ const isPortAvailable = async (port) => {
         });
     });
     app.listen(mainPort, () => {});
-    const browser = await puppeteer.launch({
-        headless: false, 
-        defaultViewport: null,
-        executablePath:"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-        args: [
-            '--disable-infobars',
-            '--start-maximized',
-            `--app=http://localhost:${mainPort}`
-            ],
-        ignoreDefaultArgs: ['--enable-automation', '--enable-blink-features=IdleDetection'],
-    });
-    app.post('/manualUpdate', (req, res) => {
-        console.log('Manual update');
-        reOpenAfterUpdate = true;
-        browser.close();
-    });
-    browser.on('disconnected', () => {
-        if (keepOpenState === false) {
-            process.exit();
-        } else {
-            updateApp();
-        }
-    });
+    (async () => {
+        const browser = await puppeteer.launch({
+            headless: false, 
+            defaultViewport: null,
+            executablePath:"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            args: [
+                '--disable-infobars',
+                '--start-maximized',
+                `--app=http://localhost:${mainPort}`
+                ],
+            ignoreDefaultArgs: ['--enable-automation', '--enable-blink-features=IdleDetection'],
+        });
+        app.post('/manualUpdate', (req, res) => {
+            console.log('Manual update');
+            reOpenAfterUpdate = true;
+            browser.close();
+        });
+        browser.on('disconnected', () => {
+            if (keepOpenState === false) {
+                process.exit();
+            } else {
+                updateApp();
+            }
+        });
+    })();
     function createAddon(projectName, outputDir, excludePackage) {
         const basePath = path.join(process.env.USERPROFILE, 'AppData/Local/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang');
         const addonZipPath = path.join(outputDir, `${projectName} Addon.mcaddon`);

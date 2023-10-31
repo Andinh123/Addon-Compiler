@@ -158,7 +158,12 @@
         </div>
     </div>
     <p id="infoBox"></p>
-
+    <div id="container">
+        <h1>Add-On Compiler</h1>
+        <h3>Made by Blues</h3>
+        <div style="font-weight: bolder; transition: 0.25s;">Latest Script Version: <span style="color: #008de5;" id="latestScriptVersion"></span></div>
+        <div id="table"></div>
+    </div>
     <script>
         const positionElement = document.getElementById('infoBox');
         document.addEventListener('mousemove', (e) => {
@@ -171,14 +176,6 @@
                 positionElement.style.display = 'none';
             }
         });
-    </script>
-    <div id="container">
-        <h1>Add-On Compiler</h1>
-        <h3>Made by Blues</h3>
-        <div style="font-weight: bolder; transition: 0.25s;">Latest Script Version: <span style="color: #008de5;" id="latestScriptVersion"></span></div>
-        <div id="table"></div>
-    </div>
-    <script>
         let previousSettingValue;
         function triggerRemovePanel() {
             document.getElementById('pathremover').style.display = 'none';
@@ -231,12 +228,16 @@
                 if (response.ok) {return response.text()} else {throw new Error('Network response was not ok')}
             })
             .then(data => {
+                console.log(data);
                 if (setting === "saveMode" && value === "addnew") {
                     if (data === "cancel") {
+                        newAlert("Cancel", "No new Directory is added", 2500);
                         document.getElementById('saveMode').value = "desktop";
+                        previousSettingValue = "desktop";
                         return;
                     } else {
-                        newAlert("New directory added", data, 2000);
+                        newAlert("New directory added", data, 2500);
+                        document.getElementById('emptyPathWarning')?.remove();
                         const newRow = document.createElement('div');
                         newRow.className = 'pathRow';
                         newRow.innerHTML = `
@@ -249,6 +250,7 @@
                         document.querySelector('.pathTable').appendChild(newRow);
                     }
                     let newSelectPath = document.getElementById('saveMode');
+                    console.log(newSelectPath);
                     newSelectPath.appendChild(new Option(data, data));
                     newSelectPath.value = data;
                 };
@@ -349,7 +351,7 @@
                     if (response.ok) {return response.text()} else {throw new Error('Network response was not ok')}
                 })
                 .then(data => {
-                    newAlert("Success", data, 2000);
+                    newAlert("Success", data, 2500);
                 })
             } else if (event.target.tagName === "BUTTON" && event.target.id === "discord") {
                 document.getElementsByClassName("overlay").item(0).style.display = "none";
@@ -397,9 +399,11 @@
                 console.log(setting.additionPath)
                 let uiSwitcher = document.getElementById('uiselect');
                 let useMode = document.getElementById('saveMode');
+                useMode.innerHTML = `<option value="addnew">>> Add a custom Directory</option> <option value="removeOld">>> Remove a custom Directory</option> <option value="choose">>> Let me decide</option> <option value="desktop">Desktop</option>`
                 let additionPath = setting.additionPath;
+                document.getElementById("pathremover")?.querySelector(".pathTable")?.remove();
                 if (additionPath.length > 0) {
-                    document.getElementById("pathremover")?.querySelector(".pathTable")?.remove();
+                    console.log("tis run")
                     const table = document.createElement("div");
                     table.className = "pathTable";
                     for (let i = additionPath.length - 1; i >= 0; i--) {
@@ -421,7 +425,8 @@
                     document.getElementById("pathremover").appendChild(table);
                 } else {
                     console.log("Nothing to show here!");
-                    document.getElementById("pathremover").appendChild(document.createElement("div")).innerHTML = "<br><br> Nothing to show here! Add some custom directory first!";
+                    document.getElementById("pathremover").appendChild(Object.assign(document.createElement("div"), { id: "emptyPathWarning", innerHTML: "<br><br> Nothing to show here! Add some custom directory first!" }));
+                    document.getElementById("pathremover").appendChild(Object.assign(document.createElement("div"), { className: "pathTable" }));
                 }
                 useMode.value = setting.saveMode;
                 previousSettingValue = setting.saveMode;
@@ -463,6 +468,7 @@
                 console.log("removeOld");
                 document.getElementById('pathremover').style.display = 'flex';
             } else {
+                if (selectedValue === "choose") {newAlert("Save directory changed", "You will be asked to choose a directory every time you compile", 5500)} else if (selectedValue !== "addnew" && selectedValue !== "removeOld") {newAlert("Save directory changed",`Your file will be save in ${selectedValue}`, 2500)};
                 previousSettingValue = selectedValue;
                 updateSetting('saveMode', selectedValue);
             }
@@ -475,7 +481,7 @@
             })
             .then(data => {
                 console.log(data);
-                newAlert("Remove custom directory", data, 2000);
+                newAlert("Remove custom directory", data, 2500);
                 fetchSetting()
             })
             .catch(error => {

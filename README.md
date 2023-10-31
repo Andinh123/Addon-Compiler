@@ -28,9 +28,12 @@ If you want to add your own UI (through CSS), go to "C:\Addon-Compiler-main\publ
 - Add a new system to let user select their own Directory as a default path
 - Add an Alert system and manual update mode
 
-### v1.1.1 [CURRENT]
+### v1.1.1
 - Fix bugs that cause the program to freeze when rapid compiling requests are made
 - The alert system is now triggered for more events (add/remove directory, compiling request, uninstall alert, etc)
 - Fix a bug that prevent user from removing custom directory
 - Revamp the compiling process! Now it should run faster
 - New DEV-mode for contributor! Prevent updates, manual-update, uninstall from happening / Prevent queue system to take effect (for rapid request testing) / Enable logs system (Backend logs ONLY) if DEV-mode is activated
+
+### v1.1.2 [CURRENT]
+- Quick Fix! Fix a bugs that disrupt the logic behind Directory control
