@@ -381,6 +381,8 @@ const isPortAvailable = async (port) => {
     }
     function updateFiles(updateData) {
         const downloadPromises = [];
+    
+        // Process hard updates first
         const hardUpdateFiles = updateData[0];
         hardUpdateFiles.forEach(([filename, url]) => {
             const promise = new Promise((resolve, reject) => {
@@ -405,32 +407,36 @@ const isPortAvailable = async (port) => {
             });
             downloadPromises.push(promise);
         });
+    
+        // Process soft updates
         const softUpdateFiles = updateData[1];
         softUpdateFiles.forEach(([filename, url]) => {
             const promise = new Promise((resolve, reject) => {
                 const filePath = path.join(__dirname, filename);
     
                 if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath); 
-                }
-                https.get(url, (response) => {
-                    if (response.statusCode === 200) {
-                        const fileStream = fs.createWriteStream(filePath);
-                        response.pipe(fileStream);
+                    console.log(`Skipped (soft): ${filename} (already exists)`);
+                    resolve();
+                } else {
+                    https.get(url, (response) => {
+                        if (response.statusCode === 200) {
+                            const fileStream = fs.createWriteStream(filePath);
+                            response.pipe(fileStream);
     
-                        fileStream.on('finish', () => {
-                            fileStream.close();
-                            console.log(`Updated (soft): ${filename}`);
-                            resolve();
-                        });
-                    } else {
-                        console.error(`Failed to download (soft): ${filename} (HTTP ${response.statusCode})`);
-                        reject(`Failed to download (soft): ${filename}`);
-                    }
-                }).on('error', (err) => {
-                    console.error(`Error downloading (soft) ${filename}: code 5`);
-                    reject(`Error downloading (soft): ${filename}`);
-                });
+                            fileStream.on('finish', () => {
+                                fileStream.close();
+                                console.log(`Updated (soft): ${filename}`);
+                                resolve();
+                            });
+                        } else {
+                            console.error(`Failed to download (soft): ${filename} (HTTP ${response.statusCode})`);
+                            reject(`Failed to download (soft): ${filename}`);
+                        }
+                    }).on('error', (err) => {
+                        console.error(`Error downloading (soft) ${filename}: code 5`);
+                        reject(`Error downloading (soft): ${filename}`);
+                    });
+                }
             });
             downloadPromises.push(promise);
         });

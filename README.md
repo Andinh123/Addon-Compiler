@@ -42,5 +42,6 @@ If you want to add your own UI (through CSS), go to "C:\Addon-Compiler-main\publ
 - Fix a bug that cause the "Remove custom directory" to not reset back to the previous state
 - Fix bugs related to how Add-On was indexed and seperated (Minor speed increase is expected)
 
-### v1.2.1 [CURRENT]
+### v1.2.5 [CURRENT]
 - Quick Fix! Fix a bugs that disrupt the logic behind Directory control
+
