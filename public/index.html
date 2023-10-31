@@ -144,8 +144,6 @@
                 <option value="user">Custom</option>
             </select>
         </div>
-        
-        
         <div class="optionSlot">
             <h4>Save Mode:</h4>
             <select id="saveMode">
@@ -159,9 +157,25 @@
             <span class="clickable" onclick="trigger()"><h4>Setting</h4></span>
         </div>
     </div>
+    <p id="infoBox"></p>
+
+    <script>
+        const positionElement = document.getElementById('infoBox');
+        document.addEventListener('mousemove', (e) => {
+            if (e.target.classList.contains('infoButton')) {
+                positionElement.innerHTML = `Updating from ${e.target.id} to ${document.getElementById('latestScriptVersion').innerHTML}`
+                positionElement.style.left = e.clientX + 'px';
+                positionElement.style.top = e.clientY + 'px';
+                positionElement.style.display = 'block';
+            } else {
+                positionElement.style.display = 'none';
+            }
+        });
+    </script>
     <div id="container">
         <h1>Add-On Compiler</h1>
         <h3>Made by Blues</h3>
+        <div style="font-weight: bolder; transition: 0.25s;">Latest Script Version: <span style="color: #008de5;" id="latestScriptVersion"></span></div>
         <div id="table"></div>
     </div>
     <script>
@@ -191,6 +205,19 @@
                     container.style.height = container.offsetHeight + "px";
                 }, 300);
             }, time);
+        }
+        function scriptVersionUpdate(project, event) {
+            console.log(project);
+            fetch(`/updateScriptVersion/${project}`, { method: 'POST' })
+            .then(response => { if (!response.ok) {throw new Error('Network response was not ok')} return response.text()})
+            .then(textData => {
+                if (textData === "ok") {
+                    console.log("OKAY");
+                    newAlert("Version Changed!", project + " has been updated to new version", 3500);
+                    event.target.style.transform = 'scale(0)';
+                } else {newAlert("Something went wrong", "No changes are made for " + project), 3500}
+            })
+            .catch(error => { console.error('There was a problem with the fetch operation:', error)});
         }
         function manualUpdate() {
             fetch(`/manualUpdate`, { method: 'POST' }).catch(console.error);
@@ -230,15 +257,27 @@
                 console.error("An error occurred:", error);
             });
         }
-        function generateHTMLTables(arrays) {
+        function generateHTMLTables(arrays, scriptState) {
+            console.log(arrays);
             let tableName = ["Resource Pack", "Add-On Pack", "Behavior Pack"];
             const tablesHTML = arrays.map((array, i) => {
                 let tableHTML = `<h2>${tableName[i]}</h2><table><tbody>`;
                 array.forEach((string, j) => {
+                    let scriptCurrentVersion = "null-script";
+                    for (let s = 0; s < scriptState.length; s++) {
+                        if (i === 0) { console.log("RP should be skipped"); break;}
+                        if (string.replace(/ (BP|RP|Addon)$/, '') === scriptState[s][0]) 
+                        {
+                            scriptCurrentVersion = scriptState[s][1];
+                            console.log(`MATCH FOUND: ${string.replace(/ (BP|RP|Addon)$/, '')} match ${scriptState[s][0]}`)
+                            break;
+                        } else {console.log(`${string.replace(/ (BP|RP|Addon)$/, '')} not match ${scriptState[s][0]}`)}
+                    };
                     tableHTML += `
                         <tr>
                             <td id="textCell">${string}</td>
-                            <td id="buttonCell"><button class="action-button">Compile</button></td>
+                            <td id="buttonCell1" class="updateScriptVersion" data-script-version="${scriptCurrentVersion}"><button style="display: none;" class="infoButton" id="${scriptCurrentVersion}" onClick="scriptVersionUpdate('${string}', event)">Update Script <br> Version</button></td>
+                            <td id="buttonCell2"><button class="action-button">Compile</button></td>
                         </tr>`;
                 });
                 tableHTML += `</tbody></table>`;
@@ -252,8 +291,35 @@
             return response.text();
         })
         .then(textData => {
-            document.getElementById('table').innerHTML = generateHTMLTables(JSON.parse(textData));
-            
+            fetch('/scriptState')
+            .then(response => {
+                if (!response.ok) {throw new Error('Network response was not ok')}
+                return response.text();
+            })
+            .then(scriptData => {
+                document.getElementById('table').innerHTML = generateHTMLTables(JSON.parse(textData), JSON.parse(scriptData));
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+        fetch('/latestScriptVersion')
+        .then(response => {
+            if (!response.ok) {throw new Error('Network response was not ok')}
+            return response.text();
+        })
+        .then(textData => {
+            document.getElementById('latestScriptVersion').innerHTML = textData;
+            const elements = document.querySelectorAll('.updateScriptVersion[data-script-version]:not([data-script-version="null-script"])');
+            for (let i = 0; i < elements.length; i++) {
+                if (elements[i].getAttribute('data-script-version') !== textData) {
+                    console.log(elements[i].getAttribute('data-script-version'));
+                    elements[i].querySelector('button').style.display = 'inline-block';
+                }
+            }
         })
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);

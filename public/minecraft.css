@@ -23,6 +23,7 @@
     display: none;
 }
 body {
+    transition: 0.25s;
     user-select: none;
     overflow-x: hidden;
     background-color: var(--background-color);
@@ -87,17 +88,20 @@ button:active {
 }
 
 h1 {
+    transition: 0.25s;
     font-family: 'MinecraftTen';
     font-size: var(--header-font-size);
     margin: 0;
 }
 
 h2 {
+    transition: 0.25s;
     font-size: var(--h2-font-size);
     margin-top: 5vw;
 }
 
 h3 {
+    transition: 0.25s;
     font-family: 'MinecraftFive';
     margin: 0.5vw;
     font-size: var(--h3-font-size);
@@ -157,6 +161,21 @@ select {
     font-weight: bold;
 }
 
-#buttonCell {
+#buttonCell1 {
+    right: 0;
     width: 7.5vw;
+}
+#buttonCell2 {
+    right: 0;
+    width: 7.5vw;
+}
+#infoBox {
+    display: none;
+    z-index: 50;
+    position: fixed; 
+    left:0; 
+    top: 0;
+    background-color: gray;
+    padding: 0.5vw;
+    border: 4px solid var(--table-background);
 }
