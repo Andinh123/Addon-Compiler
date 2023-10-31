@@ -35,5 +35,12 @@ If you want to add your own UI (through CSS), go to "C:\Addon-Compiler-main\publ
 - Revamp the compiling process! Now it should run faster
 - New DEV-mode for contributor! Prevent updates, manual-update, uninstall from happening / Prevent queue system to take effect (for rapid request testing) / Enable logs system (Backend logs ONLY) if DEV-mode is activated
 
-### v1.1.2 [CURRENT]
+### v1.2.0
+- The jump up Update!
+- Now Add-On compiler will check for the latest ScriptAPI dependency (minecraft-server only) and promt you to update it. This system isn't perfect, please be careful when you're using it
+- Fix a bug that cause the "Compile" button to have inconsistency padding/width when re-sizing the windows
+- Fix a bug that cause the "Remove custom directory" to not reset back to the previous state
+- Fix bugs related to how Add-On was indexed and seperated (Minor speed increase is expected)
+
+### v1.2.1 [CURRENT]
 - Quick Fix! Fix a bugs that disrupt the logic behind Directory control
