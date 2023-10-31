@@ -379,32 +379,60 @@ const isPortAvailable = async (port) => {
     
         archive.finalize();
     }
-    
-    //////////////////////////////////////////////////////
     function updateFiles(updateData) {
         const downloadPromises = [];
-        updateData.forEach(([filename, url]) => {
-        const promise = new Promise((resolve, reject) => {
-            https.get(url, (response) => {
-            if (response.statusCode === 200) {
-                const fileStream = fs.createWriteStream(path.join(__dirname, filename));
-                response.pipe(fileStream);
-
-                fileStream.on('finish', () => {
-                fileStream.close();
-                console.log(`Updated: ${filename}`);
-                resolve();
+        const hardUpdateFiles = updateData[0];
+        hardUpdateFiles.forEach(([filename, url]) => {
+            const promise = new Promise((resolve, reject) => {
+                https.get(url, (response) => {
+                    if (response.statusCode === 200) {
+                        const fileStream = fs.createWriteStream(path.join(__dirname, filename));
+                        response.pipe(fileStream);
+    
+                        fileStream.on('finish', () => {
+                            fileStream.close();
+                            console.log(`Updated (hard): ${filename}`);
+                            resolve();
+                        });
+                    } else {
+                        console.error(`Failed to download (hard): ${filename} (HTTP ${response.statusCode})`);
+                        reject(`Failed to download (hard): ${filename}`);
+                    }
+                }).on('error', (err) => {
+                    console.error(`Error downloading (hard) ${filename}: code 5`);
+                    reject(`Error downloading (hard): ${filename}`);
                 });
-            } else {
-                console.error(`Failed to download: ${filename} (HTTP ${response.statusCode})`);
-                reject(`Failed to download: ${filename}`);
-            }
-            }).on('error', (err) => {
-                console.error(`Error downloading ${filename}: code 5`);
-                reject(`Error downloading ${filename}`);
             });
+            downloadPromises.push(promise);
         });
-        downloadPromises.push(promise);
+        const softUpdateFiles = updateData[1];
+        softUpdateFiles.forEach(([filename, url]) => {
+            const promise = new Promise((resolve, reject) => {
+                const filePath = path.join(__dirname, filename);
+    
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath); 
+                }
+                https.get(url, (response) => {
+                    if (response.statusCode === 200) {
+                        const fileStream = fs.createWriteStream(filePath);
+                        response.pipe(fileStream);
+    
+                        fileStream.on('finish', () => {
+                            fileStream.close();
+                            console.log(`Updated (soft): ${filename}`);
+                            resolve();
+                        });
+                    } else {
+                        console.error(`Failed to download (soft): ${filename} (HTTP ${response.statusCode})`);
+                        reject(`Failed to download (soft): ${filename}`);
+                    }
+                }).on('error', (err) => {
+                    console.error(`Error downloading (soft) ${filename}: code 5`);
+                    reject(`Error downloading (soft): ${filename}`);
+                });
+            });
+            downloadPromises.push(promise);
         });
         Promise.all(downloadPromises)
         .then(() => {
@@ -414,9 +442,11 @@ const isPortAvailable = async (port) => {
                     if (error) {
                         console.error(`Error: code 6`);
                     }
-                    process.exit()
+                    process.exit();
                 });
-            } else{process.exit()};
+            } else {
+                process.exit();
+            }
         })
         .catch((error) => {
             console.error('Update failed code 7');

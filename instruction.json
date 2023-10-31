@@ -1,12 +1,15 @@
 [
-    ["package.json", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/package.json"],
-    ["app.js", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/app.js"],
-    ["public/default.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/default.css"],
-    ["public/index.html", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/index.html"],
-    ["public/light.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/light.css"],
-    ["public/minecraft.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/minecraft.css"],
-    ["public/setting.json", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/setting.json"],
-    ["version.txt", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/version.txt"],
-    ["uninstall.vbs", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/uninstall.vbs"],
-    ["discord.vbs", "https://github.com/Andinh123/Addon-Compiler/blob/main/discord.vbs"]
+    [
+        ["package.json", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/package.json"],
+        ["app.js", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/app.js"],
+        ["public/default.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/default.css"],
+        ["public/index.html", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/index.html"],
+        ["public/light.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/light.css"],
+        ["public/minecraft.css", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/minecraft.css"],
+        ["version.txt", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/version.txt"],
+        ["uninstall.vbs", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/uninstall.vbs"]
+    ],
+    [
+        ["public/setting.json", "https://raw.githubusercontent.com/Andinh123/Addon-Compiler/main/public/setting.json"]
+    ]
 ]
