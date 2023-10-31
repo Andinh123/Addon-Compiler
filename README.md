@@ -28,9 +28,16 @@ If you want to add your own UI (through CSS), go to "C:\Addon-Compiler-main\publ
 - Add a new system to let user select their own Directory as a default path
 - Add an Alert system and manual update mode
 
-### v1.1.1 [CURRENT]
+### v1.1.1
 - Fix bugs that cause the program to freeze when rapid compiling requests are made
 - The alert system is now triggered for more events (add/remove directory, compiling request, uninstall alert, etc)
 - Fix a bug that prevent user from removing custom directory
 - Revamp the compiling process! Now it should run faster
 - New DEV-mode for contributor! Prevent updates, manual-update, uninstall from happening / Prevent queue system to take effect (for rapid request testing) / Enable logs system (Backend logs ONLY) if DEV-mode is activated
+
+### v1.2.0 [CURRENT]
+- The jump up Update!
+- Now Add-On compiler will check for the latest ScriptAPI dependency (minecraft-server only) and promt you to update it. This system isn't perfect, please be careful when you're using it
+- Fix a bug that cause the "Compile" button to have inconsistency padding/width when re-sizing the windows
+- Fix a bug that cause the "Remove custom directory" to not reset back to the previous state
+- Fix bugs related to how Add-On was indexed and seperated (Minor speed increase is expected)
