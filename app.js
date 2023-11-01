@@ -318,21 +318,45 @@ const isPortAvailable = async (port) => {
     
         if (fs.existsSync(path.join(basePath, 'development_behavior_packs', projectName + ' BP'))) {
             BPpath = path.join(basePath, 'development_behavior_packs', projectName + ' BP');
-        } else {
+        } else if (fs.existsSync(path.join(basePath, 'development_behavior_packs', projectName))){
             BPpath = path.join(basePath, 'development_behavior_packs', projectName);
+        } else {
+            console.log("BP doesnt exist, compiling RP only");
         }
     
         if (fs.existsSync(path.join(basePath, 'development_resource_packs', projectName + ' RP'))) {
             RPpath = path.join(basePath, 'development_resource_packs', projectName + ' RP');
-        } else {
+        } else if (fs.existsSync(path.join(basePath, 'development_resource_packs', projectName))) {
             RPpath = path.join(basePath, 'development_resource_packs', projectName);
+        } else {
+            console.log("RP doesnt exist, compiling BP only");
         }
-    
-        const inputFolders = [
-            { name: projectName + ' BP', path: BPpath },
-            { name: projectName + ' RP', path: RPpath }
-        ];
-    
+        let inputFolders;
+        switch (true) {
+            case BPpath !== undefined && RPpath !== undefined:
+                console.log('Both BPpath and RPpath exist.');
+                inputFolders = [
+                    { name: projectName + ' BP', path: BPpath },
+                    { name: projectName + ' RP', path: RPpath }
+                ];
+                break;
+            case BPpath !== undefined:
+                console.log('Only BPpath exists.');
+                inputFolders = [
+                    { name: projectName + ' BP', path: BPpath }
+                ];
+                break;
+            case RPpath !== undefined:
+                console.log('Only RPpath exists.');
+                inputFolders = [
+                    { name: projectName + ' RP', path: RPpath }
+                ];
+                break;
+            default:
+                console.log('ERROR File not found');
+                inputFolders = [];
+                return;
+        }
         const output = fs.createWriteStream(addonZipPath);
         const archive = archiver('zip', { zlib: { level: 9 } });
     
@@ -365,14 +389,11 @@ const isPortAvailable = async (port) => {
         inputFolders.forEach(folderInfo => {
             if (folderInfo.path) {
                 if (folderInfo.name === projectName + ' BP') {
-                    // Handle the "scripts" folder within "BPpath"
                     const scriptsPath = path.join(folderInfo.path, 'scripts');
                     if (fs.existsSync(scriptsPath)) {
                         addDirectoryToArchive(scriptsPath, 'scripts');
                     }
                 }
-    
-                // Archive other directories or files
                 addDirectoryToArchive(folderInfo.path, folderInfo.name);
             }
         });
@@ -381,8 +402,6 @@ const isPortAvailable = async (port) => {
     }
     function updateFiles(updateData) {
         const downloadPromises = [];
-    
-        // Process hard updates first
         const hardUpdateFiles = updateData[0];
         hardUpdateFiles.forEach(([filename, url]) => {
             const promise = new Promise((resolve, reject) => {

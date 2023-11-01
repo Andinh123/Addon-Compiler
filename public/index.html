@@ -344,7 +344,8 @@
         .catch(error => { console.error('There was a problem with the fetch operation:', error)});
         document.addEventListener("click", function(event) {
             if (event.target.tagName === "BUTTON" && event.target.className === "action-button") {
-                fetch(`/action/${event.target.parentElement.previousElementSibling.textContent.trim()}/${document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value}`, {
+                console.log(`fetch(/action/${event.target.parentElement.previousElementSibling.previousElementSibling.textContent.trim()}/${document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value}`);
+                fetch(`/action/${event.target.parentElement.previousElementSibling.previousElementSibling.textContent.trim()}/${document.getElementById("saveMode").options[document.getElementById("saveMode").selectedIndex].value}`, {
                 method: 'POST',
                 })
                 .then((response) => {
