@@ -311,7 +311,7 @@ const isPortAvailable = async (port) => {
             }
         });
     })();
-    function createAddon(projectName, outputDir, excludePackage) {
+    function createAddon(projectName, outputDir) {
         const basePath = path.join(process.env.USERPROFILE, 'AppData/Local/Packages/Microsoft.MinecraftUWP_8wekyb3d8bbwe/LocalState/games/com.mojang');
         const addonZipPath = path.join(outputDir, `${projectName} Addon.mcaddon`);
         let BPpath, RPpath;
@@ -366,36 +366,21 @@ const isPortAvailable = async (port) => {
     
         archive.pipe(output);
     
-        function isExcluded(filePath) {
-            const excludeList = ['package.json', 'package-lock.json', 'node_modules'];
-            return excludePackage && excludeList.includes(path.basename(filePath));
-        }
-    
         function addDirectoryToArchive(sourcePath, targetPath) {
             const files = fs.readdirSync(sourcePath);
     
             files.forEach(file => {
                 const filePath = path.join(sourcePath, file);
-                if (!isExcluded(filePath)) {
-                    if (fs.statSync(filePath).isDirectory()) {
-                        archive.directory(filePath, path.join(targetPath, file));
-                    } else {
-                        archive.file(filePath, { name: path.join(targetPath, file) });
-                    }
+                if (fs.statSync(filePath).isDirectory() && file !== 'node_modules') {
+                    archive.directory(filePath, path.join(targetPath, file));
+                } else if (file !== 'package.json' && file !== 'package-lock.json') {
+                    archive.file(filePath, { name: path.join(targetPath, file) });
                 }
             });
         }
     
         inputFolders.forEach(folderInfo => {
-            if (folderInfo.path) {
-                if (folderInfo.name === projectName + ' BP') {
-                    const scriptsPath = path.join(folderInfo.path, 'scripts');
-                    if (fs.existsSync(scriptsPath)) {
-                        addDirectoryToArchive(scriptsPath, 'scripts');
-                    }
-                }
-                addDirectoryToArchive(folderInfo.path, folderInfo.name);
-            }
+            addDirectoryToArchive(folderInfo.path, folderInfo.name);
         });
     
         archive.finalize();
